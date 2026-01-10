@@ -11,8 +11,8 @@ frontend:
   replicaCount: 1  # Start small
 
   image:
-    repository: us-east4-docker.pkg.dev/surveyweb-480718/surveyweb/tenxdev-frontend
-    tag: bee4ec20-1c25-45ef-83c1-22460cce97d8
+    repository: us-docker.pkg.dev/surveyweb-480718/tenxdev/frontend
+    tag: latest
     pullPolicy: Always
 
   service:
@@ -80,8 +80,8 @@ backend:
   replicaCount: 1  # Start small
 
   image:
-    repository: us-east4-docker.pkg.dev/surveyweb-480718/surveyweb/tenxdev-backend
-    tag: bee4ec20-1c25-45ef-83c1-22460cce97d8
+    repository: us-docker.pkg.dev/surveyweb-480718/tenxdev/backend
+    tag: latest
     pullPolicy: Always
 
   service:
@@ -113,19 +113,19 @@ backend:
 
   livenessProbe:
     httpGet:
-      path: /api/v1/health/live
+      path: /live
       port: 8080
-    initialDelaySeconds: 30
-    periodSeconds: 30
-    timeoutSeconds: 5
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 3
     failureThreshold: 3
 
   readinessProbe:
     httpGet:
-      path: /api/v1/health/ready
+      path: /ready
       port: 8080
-    initialDelaySeconds: 10
-    periodSeconds: 10
+    initialDelaySeconds: 5
+    periodSeconds: 5
     timeoutSeconds: 3
     failureThreshold: 3
 
