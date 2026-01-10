@@ -1,0 +1,47 @@
+Thank you for installing {{ .Chart.Name }}!
+
+Your release is named {{ .Release.Name }}.
+
+To learn more about this release:
+
+  $ helm status {{ .Release.Name }}
+  $ helm get all {{ .Release.Name }}
+
+{{- if .Values.frontend.enabled }}
+
+FRONTEND:
+{{- if .Values.frontend.ingress.enabled }}
+  Access the frontend at:
+  {{- range .Values.frontend.ingress.hosts }}
+    https://{{ .host }}
+  {{- end }}
+{{- else }}
+  Get the frontend URL by running:
+    export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "tenxdev.name" . }},app.kubernetes.io/instance={{ .Release.Name }},app.kubernetes.io/component=frontend" -o jsonpath="{.items[0].metadata.name}")
+    kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 3000:3000
+{{- end }}
+{{- end }}
+
+{{- if .Values.backend.enabled }}
+
+BACKEND API:
+{{- if .Values.backend.ingress.enabled }}
+  Access the API at:
+  {{- range .Values.backend.ingress.hosts }}
+    https://{{ .host }}
+  {{- end }}
+{{- else }}
+  Get the backend URL by running:
+    export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "tenxdev.name" . }},app.kubernetes.io/instance={{ .Release.Name }},app.kubernetes.io/component=backend" -o jsonpath="{.items[0].metadata.name}")
+    kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:8080
+{{- end }}
+{{- end }}
+
+SECRETS:
+  Make sure to create the required secrets:
+    kubectl create secret generic tenxdev-secrets \
+      --from-literal=sendgrid-api-key='your-api-key' \
+      --from-literal=sendgrid-from-email='hello@tenxdev.ai' \
+      --from-literal=sendgrid-to-email='team@tenxdev.ai'
+
+For more information, visit: https://github.com/tenxdev/tenxdev

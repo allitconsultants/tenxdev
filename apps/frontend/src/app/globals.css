@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 250 250 250;
+    --foreground: 23 23 23;
+    --surface: 255 255 255;
+    --border: 229 229 229;
+  }
+
+  .dark {
+    --background: 10 10 10;
+    --foreground: 237 237 237;
+    --surface: 23 23 23;
+    --border: 38 38 38;
+  }
+
+  body {
+    @apply bg-background-light text-neutral-900 antialiased;
+    @apply dark:bg-background-dark dark:text-neutral-100;
+  }
+
+  * {
+    @apply border-border-light dark:border-border-dark;
+  }
+}
+
+@layer components {
+  .gradient-text {
+    @apply bg-hero-gradient bg-clip-text text-transparent bg-[length:200%_200%] animate-gradient;
+  }
+
+  .glass {
+    @apply bg-white/80 dark:bg-neutral-900/80 backdrop-blur-lg;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+
+  .link-hover {
+    @apply transition-colors duration-200 hover:text-primary;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Custom selection color */
+::selection {
+  @apply bg-primary/20 text-primary-900 dark:text-primary-100;
+}
+
+/* Focus styles */
+*:focus-visible {
+  @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background-light dark:ring-offset-background-dark;
+}

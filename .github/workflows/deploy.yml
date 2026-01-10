@@ -1,0 +1,145 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      deploy_backend:
+        description: 'Deploy backend'
+        type: boolean
+        default: true
+      deploy_frontend:
+        description: 'Deploy frontend'
+        type: boolean
+        default: true
+
+env:
+  GCP_PROJECT_ID: surveyweb-480718
+  GCP_PROJECT_NUMBER: 569337017146
+  GCP_REGION: us-east4
+  GKE_CLUSTER: surveyweb-virginia
+  ARTIFACT_REGISTRY: us-docker.pkg.dev/surveyweb-480718/tenxdev
+  NAMESPACE: tenxdev
+  WIF_PROVIDER: projects/569337017146/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+  SERVICE_ACCOUNT: github-deploy@surveyweb-480718.iam.gserviceaccount.com
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.changes.outputs.backend }}
+      frontend: ${{ steps.changes.outputs.frontend }}
+      helm: ${{ steps.changes.outputs.helm }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            backend:
+              - 'apps/backend/**'
+              - 'packages/**'
+            frontend:
+              - 'apps/frontend/**'
+              - 'packages/**'
+            helm:
+              - 'helm/**'
+
+  build-backend:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backend == 'true' || github.event.inputs.deploy_backend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker us-docker.pkg.dev --quiet
+
+      - name: Build and push backend image
+        run: |
+          docker build -f apps/backend/Dockerfile -t ${{ env.ARTIFACT_REGISTRY }}/backend:${{ github.sha }} -t ${{ env.ARTIFACT_REGISTRY }}/backend:latest .
+          docker push ${{ env.ARTIFACT_REGISTRY }}/backend:${{ github.sha }}
+          docker push ${{ env.ARTIFACT_REGISTRY }}/backend:latest
+
+  build-frontend:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend == 'true' || github.event.inputs.deploy_frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker us-docker.pkg.dev --quiet
+
+      - name: Build and push frontend image
+        run: |
+          docker build -f apps/frontend/Dockerfile -t ${{ env.ARTIFACT_REGISTRY }}/frontend:${{ github.sha }} -t ${{ env.ARTIFACT_REGISTRY }}/frontend:latest .
+          docker push ${{ env.ARTIFACT_REGISTRY }}/frontend:${{ github.sha }}
+          docker push ${{ env.ARTIFACT_REGISTRY }}/frontend:latest
+
+  deploy:
+    needs: [detect-changes, build-backend, build-frontend]
+    if: always() && (needs.build-backend.result == 'success' || needs.build-backend.result == 'skipped') && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Install GKE auth plugin
+        run: gcloud components install gke-gcloud-auth-plugin --quiet
+
+      - name: Get GKE credentials
+        run: |
+          gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} --region ${{ env.GCP_REGION }} --project ${{ env.GCP_PROJECT_ID }}
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.13.0
+
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install tenxdev ./helm/tenxdev \
+            --namespace ${{ env.NAMESPACE }} \
+            --values ./helm/tenxdev/values-prod.yaml \
+            --set backend.image.tag=${{ github.sha }} \
+            --set frontend.image.tag=${{ github.sha }} \
+            --wait \
+            --timeout 5m
+
+      - name: Verify deployment
+        run: |
+          kubectl rollout status deployment/tenxdev-backend -n ${{ env.NAMESPACE }} --timeout=120s
+          kubectl rollout status deployment/tenxdev-frontend -n ${{ env.NAMESPACE }} --timeout=120s

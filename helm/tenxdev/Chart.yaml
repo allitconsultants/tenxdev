@@ -1,0 +1,14 @@
+apiVersion: v2
+name: tenxdev
+description: tenxdev.ai website - AI-powered software development company
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - tenxdev
+  - nextjs
+  - nodejs
+  - website
+maintainers:
+  - name: tenxdev
+    email: team@tenxdev.ai

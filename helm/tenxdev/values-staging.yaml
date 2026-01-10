@@ -1,0 +1,52 @@
+# Staging environment overrides
+global:
+  environment: staging
+  domain: staging.tenxdev.ai
+
+frontend:
+  replicaCount: 1
+
+  ingress:
+    hosts:
+      - host: staging.tenxdev.ai
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: tenxdev-frontend-staging-tls
+        hosts:
+          - staging.tenxdev.ai
+
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+
+  env:
+    - name: NEXT_PUBLIC_API_URL
+      value: "https://api.staging.tenxdev.ai"
+
+backend:
+  replicaCount: 1
+
+  ingress:
+    hosts:
+      - host: api.staging.tenxdev.ai
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: tenxdev-backend-staging-tls
+        hosts:
+          - api.staging.tenxdev.ai
+
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+
+  env:
+    - name: NODE_ENV
+      value: "staging"
+    - name: CORS_ORIGIN
+      value: "https://staging.tenxdev.ai"

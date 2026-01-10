@@ -1,0 +1,46 @@
+# Cloud Build configuration for tenxdev
+# Run: gcloud builds submit --config cloudbuild.yaml .
+
+steps:
+  # Build frontend image with build args
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-f'
+      - 'apps/frontend/Dockerfile'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_API_URL=https://api.tenxdev.ai'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_TURNSTILE_SITE_KEY=0x4AAAAAACLVokPeHETeoK7e'
+      - '-t'
+      - 'us-east4-docker.pkg.dev/$PROJECT_ID/surveyweb/tenxdev-frontend:latest'
+      - '-t'
+      - 'us-east4-docker.pkg.dev/$PROJECT_ID/surveyweb/tenxdev-frontend:$BUILD_ID'
+      - '.'
+    id: 'build-frontend'
+
+  # Build backend image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-f'
+      - 'apps/backend/Dockerfile'
+      - '-t'
+      - 'us-east4-docker.pkg.dev/$PROJECT_ID/surveyweb/tenxdev-backend:latest'
+      - '-t'
+      - 'us-east4-docker.pkg.dev/$PROJECT_ID/surveyweb/tenxdev-backend:$BUILD_ID'
+      - '.'
+    id: 'build-backend'
+
+# Push images to Artifact Registry
+images:
+  - 'us-east4-docker.pkg.dev/$PROJECT_ID/surveyweb/tenxdev-frontend:latest'
+  - 'us-east4-docker.pkg.dev/$PROJECT_ID/surveyweb/tenxdev-frontend:$BUILD_ID'
+  - 'us-east4-docker.pkg.dev/$PROJECT_ID/surveyweb/tenxdev-backend:latest'
+  - 'us-east4-docker.pkg.dev/$PROJECT_ID/surveyweb/tenxdev-backend:$BUILD_ID'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_HIGHCPU_8'
+
+timeout: '1200s'

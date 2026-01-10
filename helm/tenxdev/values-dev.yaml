@@ -1,0 +1,68 @@
+# Development environment overrides
+global:
+  environment: development
+  domain: dev.tenxdev.ai
+
+frontend:
+  replicaCount: 1
+
+  ingress:
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-staging
+    hosts:
+      - host: dev.tenxdev.ai
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: tenxdev-frontend-dev-tls
+        hosts:
+          - dev.tenxdev.ai
+
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+  autoscaling:
+    enabled: false
+
+  env:
+    - name: NEXT_PUBLIC_API_URL
+      value: "https://api.dev.tenxdev.ai"
+
+backend:
+  replicaCount: 1
+
+  ingress:
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-staging
+    hosts:
+      - host: api.dev.tenxdev.ai
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: tenxdev-backend-dev-tls
+        hosts:
+          - api.dev.tenxdev.ai
+
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 25m
+      memory: 64Mi
+
+  autoscaling:
+    enabled: false
+
+  env:
+    - name: NODE_ENV
+      value: "development"
+    - name: CORS_ORIGIN
+      value: "https://dev.tenxdev.ai"

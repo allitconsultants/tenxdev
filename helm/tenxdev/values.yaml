@@ -1,0 +1,180 @@
+# Global configuration
+global:
+  environment: production
+  domain: tenxdev.ai
+  imageRegistry: us-east4-docker.pkg.dev/surveyweb-480718/surveyweb
+
+# Frontend configuration
+frontend:
+  enabled: true
+  replicaCount: 2
+
+  image:
+    repository: us-east4-docker.pkg.dev/surveyweb-480718/surveyweb/tenxdev-frontend
+    tag: latest
+    pullPolicy: Always
+
+  service:
+    type: ClusterIP
+    port: 3000
+
+  ingress:
+    enabled: true
+    className: nginx
+    annotations: {}
+    hosts:
+      - host: tenxdev.ai
+        paths:
+          - path: /
+            pathType: Prefix
+      - host: www.tenxdev.ai
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: tenxdev-frontend-tls
+        hosts:
+          - tenxdev.ai
+          - www.tenxdev.ai
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+  livenessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 10
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+  env:
+    - name: NEXT_PUBLIC_API_URL
+      value: "https://api.tenxdev.ai"
+
+# Backend configuration
+backend:
+  enabled: true
+  replicaCount: 2
+
+  image:
+    repository: us-east4-docker.pkg.dev/surveyweb-480718/surveyweb/tenxdev-backend
+    tag: latest
+    pullPolicy: Always
+
+  service:
+    type: ClusterIP
+    port: 8080
+
+  ingress:
+    enabled: true
+    className: nginx
+    annotations: {}
+    hosts:
+      - host: api.tenxdev.ai
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: tenxdev-backend-tls
+        hosts:
+          - api.tenxdev.ai
+
+  resources:
+    limits:
+      cpu: 300m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+  livenessProbe:
+    httpGet:
+      path: /api/v1/health/live
+      port: 8080
+    initialDelaySeconds: 10
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /api/v1/health/ready
+      port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+  env:
+    - name: NODE_ENV
+      value: "production"
+    - name: CORS_ORIGIN
+      value: "https://tenxdev.ai"
+    - name: GCP_PROJECT_ID
+      value: "surveyweb-480718"
+
+  # Reference to external secret for sensitive values (fallback if not using GCP Secret Manager)
+  secretRef: tenxdev-secrets
+
+  # GCP Workload Identity for Secret Manager access
+  gcpServiceAccount: "tenxdev-backend@surveyweb-480718.iam.gserviceaccount.com"
+
+  # Cleanup job for pending demo confirmations
+  cleanupJob:
+    enabled: false
+    schedule: "*/15 * * * *"  # Every 15 minutes
+
+# Common configuration
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  # GCP Workload Identity annotation - set gcpServiceAccount in backend config
+  annotations: {}
+  name: ""
+
+# GCP Configuration
+gcp:
+  # Set to true to enable GCP Secret Manager integration
+  secretManagerEnabled: true
+  # GCP Project ID for Secret Manager
+  projectId: "surveyweb-480718"
+
+podAnnotations: {}
+podSecurityContext: {}
+securityContext: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}

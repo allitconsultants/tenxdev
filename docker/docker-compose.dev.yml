@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ..
+      dockerfile: apps/frontend/Dockerfile
+      target: deps
+    command: pnpm --filter @tenxdev/frontend dev
+    volumes:
+      - ../apps/frontend/src:/app/apps/frontend/src
+      - ../apps/frontend/public:/app/apps/frontend/public
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+    networks:
+      - tenxdev-dev
+
+  backend:
+    build:
+      context: ..
+      dockerfile: apps/backend/Dockerfile
+      target: builder
+    command: pnpm --filter @tenxdev/backend dev
+    volumes:
+      - ../apps/backend/src:/app/apps/backend/src
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=development
+      - PORT=8080
+      - CORS_ORIGIN=http://localhost:3000
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
+      - SENDGRID_FROM_EMAIL=${SENDGRID_FROM_EMAIL:-hello@tenxdev.ai}
+      - SENDGRID_TO_EMAIL=${SENDGRID_TO_EMAIL:-team@tenxdev.ai}
+    networks:
+      - tenxdev-dev
+
+networks:
+  tenxdev-dev:
+    driver: bridge

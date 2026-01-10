@@ -1,0 +1,165 @@
+# Production values for tenxdev.ai on surveyweb GKE cluster
+# Namespace: tenxdev (isolated from surveyweb)
+
+global:
+  environment: production
+  domain: tenxdev.ai
+
+# Frontend configuration
+frontend:
+  enabled: true
+  replicaCount: 1  # Start small
+
+  image:
+    repository: us-east4-docker.pkg.dev/surveyweb-480718/surveyweb/tenxdev-frontend
+    tag: bee4ec20-1c25-45ef-83c1-22460cce97d8
+    pullPolicy: Always
+
+  service:
+    type: ClusterIP
+    port: 3000
+
+  ingress:
+    enabled: true
+    className: traefik
+    annotations:
+      traefik.ingress.kubernetes.io/router.tls: "true"
+    hosts:
+      - host: tenxdev.ai
+        paths:
+          - path: /
+            pathType: Prefix
+      - host: www.tenxdev.ai
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: cloudflare-origin-tls
+        hosts:
+          - tenxdev.ai
+          - www.tenxdev.ai
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+  livenessProbe:
+    httpGet:
+      path: /
+      port: 3000
+    initialDelaySeconds: 30
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /
+      port: 3000
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+  autoscaling:
+    enabled: false  # Keep it simple for now
+
+  env:
+    - name: NEXT_PUBLIC_API_URL
+      value: "https://api.tenxdev.ai"
+    - name: NEXT_PUBLIC_TURNSTILE_SITE_KEY
+      value: "0x4AAAAAACLVokPeHETeoK7e"
+
+# Backend configuration
+backend:
+  enabled: true
+  replicaCount: 1  # Start small
+
+  image:
+    repository: us-east4-docker.pkg.dev/surveyweb-480718/surveyweb/tenxdev-backend
+    tag: bee4ec20-1c25-45ef-83c1-22460cce97d8
+    pullPolicy: Always
+
+  service:
+    type: ClusterIP
+    port: 8080
+
+  ingress:
+    enabled: true
+    className: traefik
+    annotations:
+      traefik.ingress.kubernetes.io/router.tls: "true"
+    hosts:
+      - host: api.tenxdev.ai
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: cloudflare-origin-tls
+        hosts:
+          - api.tenxdev.ai
+
+  resources:
+    limits:
+      cpu: 300m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+  livenessProbe:
+    httpGet:
+      path: /api/v1/health/live
+      port: 8080
+    initialDelaySeconds: 30
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /api/v1/health/ready
+      port: 8080
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+  autoscaling:
+    enabled: false  # Keep it simple for now
+
+  env:
+    - name: NODE_ENV
+      value: "production"
+    - name: CORS_ORIGIN
+      value: "https://tenxdev.ai"
+    - name: SENDGRID_FROM_EMAIL
+      value: "hello@tenxdev.ai"
+    - name: SENDGRID_TO_EMAIL
+      value: "team@tenxdev.ai"
+
+  # GCP Workload Identity service account
+  gcpServiceAccount: "tenxdev-backend@surveyweb-480718.iam.gserviceaccount.com"
+
+  # Cleanup job for pending demo confirmations
+  cleanupJob:
+    enabled: true
+    schedule: "*/15 * * * *"  # Every 15 minutes
+
+# GCP Secret Manager configuration
+gcp:
+  secretManagerEnabled: true
+  projectId: "surveyweb-480718"
+
+# Service account with Workload Identity
+serviceAccount:
+  create: true
+  name: "tenxdev"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""

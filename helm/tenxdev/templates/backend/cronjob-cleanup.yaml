@@ -1,0 +1,49 @@
+{{- if and .Values.backend.enabled .Values.backend.cleanupJob.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "tenxdev.fullname" . }}-cleanup-pending-demos
+  labels:
+    {{- include "tenxdev.backend.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.backend.cleanupJob.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 300
+      template:
+        metadata:
+          labels:
+            {{- include "tenxdev.backend.selectorLabels" . | nindent 12 }}
+            app.kubernetes.io/component: cleanup-job
+        spec:
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          serviceAccountName: {{ include "tenxdev.serviceAccountName" . }}
+          restartPolicy: Never
+          containers:
+            - name: cleanup
+              image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag | default .Chart.AppVersion }}"
+              imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+              command: ["node", "dist/jobs/runCleanup.js"]
+              env:
+                {{- if .Values.backend.env }}
+                {{- toYaml .Values.backend.env | nindent 16 }}
+                {{- end }}
+                {{- if .Values.gcp.secretManagerEnabled }}
+                - name: GCP_PROJECT_ID
+                  value: {{ .Values.gcp.projectId | quote }}
+                {{- end }}
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+{{- end }}
