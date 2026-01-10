@@ -131,11 +131,15 @@ jobs:
 
       - name: Deploy with Helm
         run: |
+          # Only set image tag if the build ran, otherwise use 'latest' from values file
+          BACKEND_TAG="${{ needs.build-backend.result == 'success' && github.sha || 'latest' }}"
+          FRONTEND_TAG="${{ needs.build-frontend.result == 'success' && github.sha || 'latest' }}"
+
           helm upgrade --install tenxdev ./helm/tenxdev \
             --namespace ${{ env.NAMESPACE }} \
             --values ./helm/tenxdev/values-prod.yaml \
-            --set backend.image.tag=${{ github.sha }} \
-            --set frontend.image.tag=${{ github.sha }} \
+            --set backend.image.tag=${BACKEND_TAG} \
+            --set frontend.image.tag=${FRONTEND_TAG} \
             --wait \
             --timeout 5m
 
