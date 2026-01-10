@@ -158,7 +158,7 @@ export const services = [
 ];
 
 export const stats = [
-  { value: '4x', label: 'Faster Delivery' },
+  { value: '10x', label: 'Faster Delivery' },
   { value: '75%', label: 'Cost Reduction' },
   { value: '10x', label: 'Developer Productivity' },
   { value: '99.9%', label: 'Uptime SLA' },

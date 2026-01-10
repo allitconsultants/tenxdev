@@ -17,7 +17,7 @@ const values = [
   {
     title: 'Quality Over Speed',
     description:
-      'While we deliver 4x faster, we never compromise on quality. AI helps us catch issues early and maintain high standards.',
+      'While we deliver 10x faster, we never compromise on quality. AI helps us catch issues early and maintain high standards.',
   },
   {
     title: 'Transparency',
@@ -74,7 +74,7 @@ export default function AboutPage() {
               <h3 className="text-2xl font-bold">The 10x Promise</h3>
               <ul className="mt-6 space-y-4">
                 <li className="flex items-start gap-3">
-                  <span className="text-2xl font-bold">4x</span>
+                  <span className="text-2xl font-bold">10x</span>
                   <span className="text-white/80">
                     Faster delivery through AI-accelerated development
                   </span>

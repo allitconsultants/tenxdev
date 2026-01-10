@@ -57,7 +57,7 @@ export function Hero() {
           <div className="mt-16 grid grid-cols-2 gap-8 sm:grid-cols-4">
             <div>
               <div className="text-3xl font-bold text-primary sm:text-4xl">
-                4x
+                10x
               </div>
               <div className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
                 Faster Delivery

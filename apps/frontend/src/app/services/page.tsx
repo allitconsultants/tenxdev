@@ -318,7 +318,7 @@ export default function ServicesPage() {
                       <CardContent>
                         <ul className="space-y-4">
                           <li className="flex items-start gap-3">
-                            <span className="font-semibold text-primary">4x</span>
+                            <span className="font-semibold text-primary">10x</span>
                             <span className="text-neutral-600 dark:text-neutral-400">
                               Faster delivery than traditional teams
                             </span>
