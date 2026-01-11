@@ -1,218 +1,299 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Check, ArrowRight } from 'lucide-react';
-import { Button, Card, Badge } from '@/components/ui';
+import { Check, ArrowRight, Shield, Zap, Clock, Users } from 'lucide-react';
+import { Button, Card } from '@/components/ui';
 
 export const metadata: Metadata = {
-  title: 'Pricing',
-  description: 'Flexible pricing for AI-powered software development services.',
+  title: 'Pricing | TenxDev - Enterprise App Development',
+  description:
+    'Transparent pricing for enterprise application development. SSO, regional databases, AI components included.',
 };
 
-const tiers = [
+const included = [
+  'Enterprise SSO (Okta, Azure AD, SAML)',
+  'Regional database support',
+  'AI component integration',
+  'Cloud deployment',
+  'Source code ownership',
+  'Documentation & training',
+];
+
+const process = [
   {
-    name: 'Discovery',
-    description: 'Validate your idea and plan the roadmap',
-    price: '$2,500',
-    priceNote: 'one-time',
-    features: [
-      ' 2-hour strategy session',
-      'Technical feasibility review',
-      'Technology stack recommendation',
-      'High-level architecture',
-      'Development roadmap',
-      'Cost & timeline estimate',
-    ],
-    cta: 'Book Discovery',
-    highlighted: false,
+    step: '1',
+    title: 'Discovery Call',
+    description: 'Free 30-min call to understand your project',
+    time: 'Free',
   },
   {
-    name: 'MVP Sprint',
-    description: 'Go from idea to working product in 4 weeks',
-    price: 'From $15k',
-    priceNote: '4-week sprint',
-    features: [
-      'Everything in Discovery',
-      'Full MVP development',
-      'AI-powered 10x team',
-      'Weekly demos & feedback',
-      'Cloud infrastructure setup',
-      'CI/CD pipeline',
-      'Launch support',
-      '30-day warranty',
-    ],
-    cta: 'Start Your MVP',
-    highlighted: true,
+    step: '2',
+    title: 'Proposal',
+    description: 'Detailed scope, timeline, and fixed quote',
+    time: '48 hours',
   },
   {
-    name: 'Growth',
-    description: 'Scale your product with ongoing support',
-    price: 'From $8k',
-    priceNote: 'per month',
-    features: [
-      'Dedicated dev hours',
-      'Feature development',
-      'Bug fixes & maintenance',
-      'Performance optimization',
-      'Infrastructure scaling',
-      'Priority support',
-      'Monthly strategy calls',
-      'Flexible commitment',
-    ],
-    cta: 'Let\'s Talk',
-    highlighted: false,
+    step: '3',
+    title: 'Build',
+    description: 'We develop your app with weekly updates',
+    time: '6-12 weeks',
   },
+  {
+    step: '4',
+    title: 'Launch',
+    description: 'Deploy to production with support',
+    time: 'Included',
+  },
+];
+
+const stats = [
+  { value: '$25k', label: 'Typical starting point', sublabel: 'for MVPs' },
+  { value: '6-12', label: 'Weeks to launch', sublabel: 'not months' },
+  { value: '99.9%', label: 'Uptime SLA', sublabel: 'managed hosting' },
 ];
 
 const faqs = [
   {
-    question: 'What can you build in a 4-week MVP sprint?',
-    answer:
-      'We can build a fully functional web or mobile app with user authentication, core features, database, API, and cloud deployment. Past MVPs include SaaS dashboards, marketplaces, booking platforms, and internal tools.',
+    q: 'How much does a typical project cost?',
+    a: 'Most projects range from $25k-$100k depending on complexity. We provide a fixed quote after understanding your requirements—no surprises.',
   },
   {
-    question: 'Do you offer payment plans for startups?',
-    answer:
-      'Yes! We offer milestone-based payments so you\'re not paying everything upfront. For funded startups, we can also discuss deferred payment options tied to your funding milestones.',
+    q: 'What enterprise features are included?',
+    a: 'Every project includes SSO integration (Okta, Azure AD, Google, SAML), regional database support for data residency, and AI component integration. No extra charge.',
   },
   {
-    question: 'What happens after the MVP is launched?',
-    answer:
-      'Every MVP includes a 30-day warranty for bug fixes. After that, you can continue with our Growth retainer for ongoing development, or we hand off the codebase with full documentation so your team can take over.',
+    q: 'Do I own the code?',
+    a: 'Yes. You get full source code, documentation, and training. Host it yourself or use our managed hosting—your choice.',
   },
   {
-    question: 'Can you work with our existing team?',
-    answer:
-      'Absolutely. We can augment your team, pair program with your developers, or work independently. We adapt to whatever makes your startup move fastest.',
+    q: 'What about ongoing maintenance?',
+    a: 'We offer managed hosting from $500/month (includes monitoring, updates, backups) or development retainers from $8k/month for new features.',
   },
   {
-    question: 'What if I just need a few hours of consulting?',
-    answer:
-      'Our Discovery package is designed exactly for this. Get expert advice on your tech stack, architecture, or development approach without committing to a full project.',
+    q: 'How do payments work?',
+    a: 'We typically structure payments in milestones: 30% to start, 30% at midpoint, 40% at launch. We can discuss flexible arrangements for funded startups.',
   },
+];
+
+const trust = [
+  { icon: Shield, label: 'SOC 2 Ready Architecture' },
+  { icon: Zap, label: 'AI-Powered Development' },
+  { icon: Clock, label: 'On-Time Delivery' },
+  { icon: Users, label: 'Dedicated Team' },
 ];
 
 export default function PricingPage() {
   return (
     <>
       {/* Hero */}
-      <section className="py-20 sm:py-32">
+      <section className="py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="text-4xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-5xl">
-              Startup-Friendly Pricing
+              Enterprise Features.
+              <br />
+              <span className="text-primary">Transparent Pricing.</span>
             </h1>
             <p className="mt-6 text-lg text-neutral-600 dark:text-neutral-400">
-              Get your MVP to market fast without burning through your runway.
-              Flexible packages designed for early-stage startups.
+              Every project includes SSO, regional databases, and AI components.
+              Get a fixed quote in 48 hours.
             </p>
+            <div className="mt-8">
+              <Link href="/contact">
+                <Button size="lg">
+                  Get Your Free Quote
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
 
-      {/* Pricing Tiers */}
-      <section className="pb-20 sm:pb-32">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-8 lg:grid-cols-3">
-            {tiers.map((tier) => (
-              <Card
-                key={tier.name}
-                variant="bordered"
-                className={`relative flex flex-col ${
-                  tier.highlighted
-                    ? 'border-primary ring-2 ring-primary'
-                    : ''
-                }`}
-              >
-                {tier.highlighted && (
-                  <Badge
-                    variant="primary"
-                    className="absolute -top-3 left-1/2 -translate-x-1/2"
-                  >
-                    Best for Startups
-                  </Badge>
-                )}
-                <div className="p-8">
-                  <h3 className="text-xl font-semibold text-neutral-900 dark:text-white">
-                    {tier.name}
-                  </h3>
-                  <p className="mt-2 text-neutral-600 dark:text-neutral-400">
-                    {tier.description}
-                  </p>
-                  <div className="mt-6">
-                    <span className="text-4xl font-bold text-neutral-900 dark:text-white">
-                      {tier.price}
-                    </span>
-                    <span className="ml-2 text-neutral-500">
-                      {tier.priceNote}
-                    </span>
-                  </div>
-                  <ul className="mt-8 space-y-4">
-                    {tier.features.map((feature) => (
-                      <li key={feature} className="flex items-start gap-3">
-                        <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-                        <span className="text-neutral-600 dark:text-neutral-400">
-                          {feature}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-8">
-                    <Link href="/contact" className="w-full">
-                      <Button
-                        variant={tier.highlighted ? 'primary' : 'secondary'}
-                        className="w-full"
-                      >
-                        {tier.cta}
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    </Link>
-                  </div>
+          {/* Stats */}
+          <div className="mx-auto mt-16 grid max-w-3xl gap-8 sm:grid-cols-3">
+            {stats.map((stat) => (
+              <div key={stat.label} className="text-center">
+                <div className="text-4xl font-bold text-primary">{stat.value}</div>
+                <div className="mt-1 font-medium text-neutral-900 dark:text-white">
+                  {stat.label}
                 </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="bg-neutral-50 py-20 dark:bg-neutral-900/50 sm:py-32">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-center text-3xl font-bold text-neutral-900 dark:text-white sm:text-4xl">
-            Frequently Asked Questions
-          </h2>
-          <div className="mt-12 space-y-8">
-            {faqs.map((faq) => (
-              <div
-                key={faq.question}
-                className="rounded-xl border border-border-light bg-surface-light p-6 dark:border-border-dark dark:bg-surface-dark"
-              >
-                <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
-                  {faq.question}
-                </h3>
-                <p className="mt-2 text-neutral-600 dark:text-neutral-400">
-                  {faq.answer}
-                </p>
+                <div className="text-sm text-neutral-500">{stat.sublabel}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-20 sm:py-32">
+      {/* What's Included */}
+      <section className="border-y border-neutral-200 bg-neutral-50 py-16 dark:border-neutral-800 dark:bg-neutral-900/50 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-neutral-900 dark:text-white sm:text-4xl">
-              Ready to Build Your MVP?
+          <div className="mx-auto max-w-3xl">
+            <h2 className="text-center text-2xl font-bold text-neutral-900 dark:text-white sm:text-3xl">
+              Included in Every Project
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-lg text-neutral-600 dark:text-neutral-400">
-              Book a free 30-minute call to discuss your startup idea. No
-              commitment, just honest advice.
+            <p className="mt-4 text-center text-neutral-600 dark:text-neutral-400">
+              No add-ons. No upsells. Enterprise features from day one.
+            </p>
+            <div className="mt-10 grid gap-4 sm:grid-cols-2">
+              {included.map((item) => (
+                <div
+                  key={item}
+                  className="flex items-center gap-3 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
+                >
+                  <Check className="h-5 w-5 shrink-0 text-primary" />
+                  <span className="text-neutral-700 dark:text-neutral-300">{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="py-16 sm:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h2 className="text-center text-2xl font-bold text-neutral-900 dark:text-white sm:text-3xl">
+            How It Works
+          </h2>
+          <div className="mx-auto mt-12 grid max-w-4xl gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {process.map((item) => (
+              <div key={item.step} className="relative text-center">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-white">
+                  {item.step}
+                </div>
+                <h3 className="mt-4 font-semibold text-neutral-900 dark:text-white">
+                  {item.title}
+                </h3>
+                <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+                  {item.description}
+                </p>
+                <p className="mt-2 text-sm font-medium text-primary">{item.time}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Ongoing Options */}
+      <section className="border-y border-neutral-200 bg-neutral-50 py-16 dark:border-neutral-800 dark:bg-neutral-900/50 sm:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h2 className="text-center text-2xl font-bold text-neutral-900 dark:text-white sm:text-3xl">
+            After Launch
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-center text-neutral-600 dark:text-neutral-400">
+            Take full ownership or let us handle everything.
+          </p>
+          <div className="mx-auto mt-12 grid max-w-4xl gap-8 lg:grid-cols-2">
+            {/* Option 1 */}
+            <Card variant="bordered" className="p-8">
+              <h3 className="text-xl font-semibold text-neutral-900 dark:text-white">
+                Full Handoff
+              </h3>
+              <p className="mt-2 text-neutral-600 dark:text-neutral-400">
+                You own everything. We provide complete documentation and training.
+              </p>
+              <div className="mt-4 text-2xl font-bold text-neutral-900 dark:text-white">
+                Included
+                <span className="ml-2 text-base font-normal text-neutral-500">
+                  with every project
+                </span>
+              </div>
+              <ul className="mt-6 space-y-2">
+                {['Full source code', 'Technical documentation', 'Team training', '30-day support'].map(
+                  (f) => (
+                    <li key={f} className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
+                      <Check className="h-4 w-4 text-primary" />
+                      {f}
+                    </li>
+                  )
+                )}
+              </ul>
+            </Card>
+
+            {/* Option 2 */}
+            <Card variant="bordered" className="relative overflow-hidden p-8">
+              <div className="absolute right-4 top-4 rounded-full bg-primary px-3 py-1 text-xs font-medium text-white">
+                Popular
+              </div>
+              <h3 className="text-xl font-semibold text-neutral-900 dark:text-white">
+                Managed Hosting
+              </h3>
+              <p className="mt-2 text-neutral-600 dark:text-neutral-400">
+                We run your app. You focus on your business.
+              </p>
+              <div className="mt-4 text-2xl font-bold text-neutral-900 dark:text-white">
+                From $500
+                <span className="ml-2 text-base font-normal text-neutral-500">/month</span>
+              </div>
+              <ul className="mt-6 space-y-2">
+                {['99.9% uptime SLA', '24/7 monitoring', 'Security updates', 'Daily backups', 'Technical support'].map(
+                  (f) => (
+                    <li key={f} className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
+                      <Check className="h-4 w-4 text-primary" />
+                      {f}
+                    </li>
+                  )
+                )}
+              </ul>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Trust Signals */}
+      <section className="py-16 sm:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto grid max-w-4xl gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {trust.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div key={item.label} className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                    {item.label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="border-t border-neutral-200 bg-neutral-50 py-16 dark:border-neutral-800 dark:bg-neutral-900/50 sm:py-24">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+          <h2 className="text-center text-2xl font-bold text-neutral-900 dark:text-white sm:text-3xl">
+            Common Questions
+          </h2>
+          <div className="mt-12 space-y-6">
+            {faqs.map((faq) => (
+              <div
+                key={faq.q}
+                className="rounded-xl border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900"
+              >
+                <h3 className="font-semibold text-neutral-900 dark:text-white">{faq.q}</h3>
+                <p className="mt-2 text-neutral-600 dark:text-neutral-400">{faq.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="py-16 sm:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-primary-dark px-8 py-16 text-center sm:px-16">
+            <div className="absolute right-0 top-0 -z-10 h-64 w-64 translate-x-1/3 -translate-y-1/3 rounded-full bg-white/10 blur-3xl" />
+            <h2 className="text-3xl font-bold text-white sm:text-4xl">
+              Let's Discuss Your Project
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-lg text-white/80">
+              Free 30-minute call. No commitment. Get a fixed quote in 48 hours.
             </p>
             <div className="mt-8">
               <Link href="/contact">
-                <Button size="lg">
-                  Book Free Call
+                <Button size="lg" className="bg-white text-primary hover:bg-white/90">
+                  Schedule Your Call
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>

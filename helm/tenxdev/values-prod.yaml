@@ -11,7 +11,7 @@ frontend:
   replicaCount: 1  # Start small
 
   image:
-    repository: us-docker.pkg.dev/surveyweb-480718/tenxdev/frontend
+    repository: us-east4-docker.pkg.dev/surveyweb-480718/surveyweb/tenxdev-frontend
     tag: latest
     pullPolicy: Always
 
@@ -24,6 +24,7 @@ frontend:
     className: traefik
     annotations:
       traefik.ingress.kubernetes.io/router.tls: "true"
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
     hosts:
       - host: tenxdev.ai
         paths:
@@ -80,7 +81,7 @@ backend:
   replicaCount: 1  # Start small
 
   image:
-    repository: us-docker.pkg.dev/surveyweb-480718/tenxdev/backend
+    repository: us-east4-docker.pkg.dev/surveyweb-480718/surveyweb/tenxdev-backend
     tag: latest
     pullPolicy: Always
 
@@ -93,6 +94,7 @@ backend:
     className: traefik
     annotations:
       traefik.ingress.kubernetes.io/router.tls: "true"
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
     hosts:
       - host: api.tenxdev.ai
         paths:
@@ -149,6 +151,184 @@ backend:
   cleanupJob:
     enabled: true
     schedule: "*/15 * * * *"  # Every 15 minutes
+
+# Documents Service configuration
+documents:
+  enabled: true
+  replicaCount: 1
+
+  image:
+    repository: us-east4-docker.pkg.dev/surveyweb-480718/surveyweb/tenxdev-documents
+    tag: latest
+    pullPolicy: Always
+
+  service:
+    type: ClusterIP
+    port: 3005
+
+  ingress:
+    enabled: true
+    className: traefik
+    annotations:
+      traefik.ingress.kubernetes.io/router.tls: "true"
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    hosts:
+      - host: docs-api.tenxdev.ai
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: cloudflare-origin-tls
+        hosts:
+          - docs-api.tenxdev.ai
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 3005
+    initialDelaySeconds: 10
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 3005
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+  env:
+    - name: NODE_ENV
+      value: "production"
+    - name: PORT
+      value: "3005"
+    - name: PORTAL_URL
+      value: "https://portal.tenxdev.ai"
+    - name: NOTIFICATIONS_SERVICE_URL
+      value: "http://tenxdev-notifications:3006"
+
+# Notifications Service configuration
+notifications:
+  enabled: true
+  replicaCount: 1
+
+  image:
+    repository: us-east4-docker.pkg.dev/surveyweb-480718/surveyweb/tenxdev-notifications
+    tag: latest
+    pullPolicy: Always
+
+  service:
+    type: ClusterIP
+    port: 3006
+
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 3006
+    initialDelaySeconds: 10
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 3006
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+  env:
+    - name: NODE_ENV
+      value: "production"
+    - name: PORT
+      value: "3006"
+    - name: FROM_EMAIL
+      value: "noreply@tenxdev.ai"
+    - name: FROM_NAME
+      value: "TenxDev"
+
+# Portal configuration
+portal:
+  enabled: true
+  replicaCount: 1
+
+  image:
+    repository: us-east4-docker.pkg.dev/surveyweb-480718/surveyweb/tenxdev-portal
+    tag: latest
+    pullPolicy: Always
+
+  service:
+    type: ClusterIP
+    port: 3100
+
+  ingress:
+    enabled: true
+    className: traefik
+    annotations:
+      traefik.ingress.kubernetes.io/router.tls: "true"
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    hosts:
+      - host: portal.tenxdev.ai
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: cloudflare-origin-tls
+        hosts:
+          - portal.tenxdev.ai
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+  livenessProbe:
+    httpGet:
+      path: /api/auth/session
+      port: 3100
+    initialDelaySeconds: 10
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /api/auth/session
+      port: 3100
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+  env:
+    - name: NODE_ENV
+      value: "production"
+    - name: NEXT_PUBLIC_DOCUMENTS_SERVICE_URL
+      value: "https://docs-api.tenxdev.ai"
 
 # GCP Secret Manager configuration
 gcp:

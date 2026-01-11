@@ -63,6 +63,86 @@ backend:
 
   env:
     - name: NODE_ENV
-      value: "development"
+      value: "production"
     - name: CORS_ORIGIN
       value: "https://dev.tenxdev.ai"
+
+# Documents Service dev overrides
+documents:
+  ingress:
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-staging
+    hosts:
+      - host: docs-api.dev.tenxdev.ai
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: tenxdev-documents-dev-tls
+        hosts:
+          - docs-api.dev.tenxdev.ai
+
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+  env:
+    - name: NODE_ENV
+      value: "production"
+    - name: PORT
+      value: "3005"
+    - name: PORTAL_URL
+      value: "https://portal.dev.tenxdev.ai"
+
+# Notifications Service dev overrides
+notifications:
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 25m
+      memory: 64Mi
+
+  env:
+    - name: NODE_ENV
+      value: "production"
+    - name: PORT
+      value: "3006"
+    - name: FROM_EMAIL
+      value: "noreply@dev.tenxdev.ai"
+    - name: FROM_NAME
+      value: "TenxDev Dev"
+
+# Portal dev overrides
+portal:
+  ingress:
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-staging
+    hosts:
+      - host: portal.dev.tenxdev.ai
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: tenxdev-portal-dev-tls
+        hosts:
+          - portal.dev.tenxdev.ai
+
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+  env:
+    - name: NODE_ENV
+      value: "production"
+    - name: NEXT_PUBLIC_DOCUMENTS_SERVICE_URL
+      value: "https://docs-api.dev.tenxdev.ai"

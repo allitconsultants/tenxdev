@@ -90,3 +90,51 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Documents service labels
+*/}}
+{{- define "tenxdev.documents.labels" -}}
+{{ include "tenxdev.labels" . }}
+app.kubernetes.io/component: documents
+{{- end }}
+
+{{/*
+Documents service selector labels
+*/}}
+{{- define "tenxdev.documents.selectorLabels" -}}
+{{ include "tenxdev.selectorLabels" . }}
+app.kubernetes.io/component: documents
+{{- end }}
+
+{{/*
+Notifications service labels
+*/}}
+{{- define "tenxdev.notifications.labels" -}}
+{{ include "tenxdev.labels" . }}
+app.kubernetes.io/component: notifications
+{{- end }}
+
+{{/*
+Notifications service selector labels
+*/}}
+{{- define "tenxdev.notifications.selectorLabels" -}}
+{{ include "tenxdev.selectorLabels" . }}
+app.kubernetes.io/component: notifications
+{{- end }}
+
+{{/*
+Portal labels
+*/}}
+{{- define "tenxdev.portal.labels" -}}
+{{ include "tenxdev.labels" . }}
+app.kubernetes.io/component: portal
+{{- end }}
+
+{{/*
+Portal selector labels
+*/}}
+{{- define "tenxdev.portal.selectorLabels" -}}
+{{ include "tenxdev.selectorLabels" . }}
+app.kubernetes.io/component: portal
+{{- end }}

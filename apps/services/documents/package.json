@@ -1,0 +1,30 @@
+{
+  "name": "@tenxdev/documents-service",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.600.0",
+    "@aws-sdk/s3-request-presigner": "^3.600.0",
+    "@hono/node-server": "^1.11.0",
+    "@tenxdev/database": "workspace:*",
+    "@tenxdev/service-utils": "workspace:*",
+    "hono": "^4.4.0",
+    "pdf-lib": "^1.17.1",
+    "pdf-parse": "^2.4.5",
+    "tsx": "^4.7.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@tenxdev/tsconfig": "workspace:*",
+    "@types/node": "^20.10.0",
+    "@types/pdf-parse": "^1.1.5",
+    "typescript": "^5.3.0"
+  }
+}

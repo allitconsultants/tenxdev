@@ -154,6 +154,185 @@ backend:
     enabled: false
     schedule: "*/15 * * * *"  # Every 15 minutes
 
+# Documents Service configuration
+documents:
+  enabled: true
+  replicaCount: 1
+
+  image:
+    repository: us-east4-docker.pkg.dev/surveyweb-480718/surveyweb/tenxdev-documents
+    tag: latest
+    pullPolicy: Always
+
+  service:
+    type: ClusterIP
+    port: 3005
+
+  ingress:
+    enabled: true
+    className: nginx
+    annotations: {}
+    hosts:
+      - host: docs-api.tenxdev.ai
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: tenxdev-documents-tls
+        hosts:
+          - docs-api.tenxdev.ai
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 3005
+    initialDelaySeconds: 10
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 3005
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+  autoscaling:
+    enabled: false
+
+  env:
+    - name: NODE_ENV
+      value: "production"
+    - name: PORT
+      value: "3005"
+
+# Notifications Service configuration
+notifications:
+  enabled: true
+  replicaCount: 1
+
+  image:
+    repository: us-east4-docker.pkg.dev/surveyweb-480718/surveyweb/tenxdev-notifications
+    tag: latest
+    pullPolicy: Always
+
+  service:
+    type: ClusterIP
+    port: 3006
+
+  resources:
+    limits:
+      cpu: 300m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 3006
+    initialDelaySeconds: 10
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 3006
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+  autoscaling:
+    enabled: false
+
+  env:
+    - name: NODE_ENV
+      value: "production"
+    - name: PORT
+      value: "3006"
+    - name: FROM_EMAIL
+      value: "noreply@tenxdev.ai"
+    - name: FROM_NAME
+      value: "TenxDev"
+
+# Portal configuration
+portal:
+  enabled: true
+  replicaCount: 1
+
+  image:
+    repository: us-east4-docker.pkg.dev/surveyweb-480718/surveyweb/tenxdev-portal
+    tag: latest
+    pullPolicy: Always
+
+  service:
+    type: ClusterIP
+    port: 3100
+
+  ingress:
+    enabled: true
+    className: nginx
+    annotations: {}
+    hosts:
+      - host: portal.tenxdev.ai
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: tenxdev-portal-tls
+        hosts:
+          - portal.tenxdev.ai
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+  livenessProbe:
+    httpGet:
+      path: /api/health
+      port: 3100
+    initialDelaySeconds: 10
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /api/health
+      port: 3100
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+  autoscaling:
+    enabled: false
+
+  env:
+    - name: NODE_ENV
+      value: "production"
+    - name: NEXT_PUBLIC_DOCUMENTS_SERVICE_URL
+      value: "https://docs-api.tenxdev.ai"
+
 # Common configuration
 imagePullSecrets: []
 nameOverride: ""

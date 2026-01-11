@@ -1,0 +1,139 @@
+# YugabyteDB Helm Values for TenxDev
+# Uses official yugabytedb/yugabyte helm chart
+
+# Cluster name suffix (full name: yb-<suffix>)
+Name: tenxdev
+
+# Replication factor - 3 for production, 1 for dev
+replicas:
+  master: 3
+  tserver: 3
+
+# Resource allocation
+resource:
+  master:
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+    limits:
+      cpu: "1"
+      memory: "1Gi"
+  tserver:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "2"
+      memory: "2Gi"
+
+# Storage configuration
+storage:
+  ephemeral: false
+  master:
+    count: 1
+    size: 10Gi
+    storageClass: "standard-rwo"
+  tserver:
+    count: 1
+    size: 50Gi
+    storageClass: "standard-rwo"
+
+# Enable TLS
+tls:
+  enabled: true
+  # Use existing secret (we'll create this)
+  rootCA:
+    cert: ""
+    key: ""
+  # TLS certificates will be generated
+  certManager:
+    enabled: false
+
+# Authentication
+authCredentials:
+  ysql:
+    user: yugabyte
+    # Password will be set via secret
+    password: ""
+  ycql:
+    user: cassandra
+    password: ""
+
+# YSQL (PostgreSQL-compatible) configuration
+ysql:
+  enabled: true
+  # Use PostgreSQL wire protocol
+  enableAuth: true
+
+# YCQL (Cassandra-compatible) - disable for now
+ycql:
+  enabled: false
+
+# Networking
+serviceEndpoints:
+  - name: "yb-master-ui"
+    type: ClusterIP
+    app: yb-master
+    ports:
+      http-ui: "7000"
+  - name: "yb-tserver-service"
+    type: ClusterIP
+    app: yb-tserver
+    ports:
+      tcp-yql-port: "9042"
+      tcp-ysql-port: "5433"
+
+# Pod disruption budget
+podDisruptionBudget:
+  master:
+    maxUnavailable: 1
+  tserver:
+    maxUnavailable: 1
+
+# Affinity rules to spread pods across nodes
+master:
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                    - yb-master
+            topologyKey: kubernetes.io/hostname
+
+tserver:
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                    - yb-tserver
+            topologyKey: kubernetes.io/hostname
+
+# Gflags for master and tserver
+gflags:
+  master:
+    default_memory_limit_to_ram_ratio: "0.85"
+  tserver:
+    default_memory_limit_to_ram_ratio: "0.85"
+    # Enable PostgreSQL-compatible features
+    ysql_enable_packed_row: "true"
+    ysql_beta_features: "true"
+
+# Don't expose externally
+enableLoadBalancer: false
+
+# Image configuration
+image:
+  repository: yugabytedb/yugabyte
+  tag: "2.20.1.0-b97"
+  pullPolicy: IfNotPresent

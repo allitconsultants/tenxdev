@@ -12,6 +12,10 @@ interface SecretsConfig {
   anthropicApiKey?: string;
   googleCalendarId?: string;
   jwtSecret?: string;
+  r2AccountId?: string;
+  r2AccessKeyId?: string;
+  r2SecretAccessKey?: string;
+  r2BucketName?: string;
 }
 
 const secretMappings: Record<keyof SecretsConfig, string> = {
@@ -23,6 +27,10 @@ const secretMappings: Record<keyof SecretsConfig, string> = {
   anthropicApiKey: 'claude-tenx-api-key',
   googleCalendarId: 'google-calendar-id-tenxdev',
   jwtSecret: 'jwt-secret-tenxdev',
+  r2AccountId: 'r2-account-id',
+  r2AccessKeyId: 'r2-access-key-id',
+  r2SecretAccessKey: 'r2-secret-access-key',
+  r2BucketName: 'r2-bucket-name',
 };
 
 export const secrets: SecretsConfig = {};

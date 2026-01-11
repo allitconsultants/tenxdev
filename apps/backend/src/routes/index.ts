@@ -5,6 +5,7 @@ import { newsletterRoutes } from './newsletter.js';
 import { chatRoutes } from './chat.js';
 import salesChatRoutes from './salesChat.js';
 import demoConfirmRoutes from './demoConfirm.js';
+import { careersRoutes } from './careers.js';
 import { apiLimiter, salesChatLimiter } from '../middleware/rateLimit.js';
 
 const router: IRouter = Router();
@@ -21,5 +22,6 @@ router.use('/newsletter', newsletterRoutes);
 router.use('/chat', chatRoutes);
 router.use('/sales-chat', salesChatLimiter, salesChatRoutes);
 router.use('/demo-confirm', demoConfirmRoutes);
+router.use('/careers', careersRoutes);
 
 export const routes: IRouter = router;

@@ -1,0 +1,31 @@
+# YugabyteDB Dev Values - Smaller footprint for development
+# Override values.yaml for dev environment
+
+# Single replica for dev (saves resources)
+replicas:
+  master: 1
+  tserver: 1
+
+# Smaller resources for dev
+resource:
+  master:
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  tserver:
+    requests:
+      cpu: "250m"
+      memory: "512Mi"
+    limits:
+      cpu: "1"
+      memory: "1Gi"
+
+# Smaller storage for dev
+storage:
+  master:
+    size: 5Gi
+  tserver:
+    size: 20Gi

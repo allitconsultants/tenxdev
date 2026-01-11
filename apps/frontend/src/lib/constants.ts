@@ -14,9 +14,8 @@ export const siteConfig = {
 export const navigation = {
   main: [
     { name: 'Services', href: '/services' },
-    { name: 'Industries', href: '/industries' },
-    { name: 'Case Studies', href: '/case-studies' },
     { name: 'Pricing', href: '/pricing' },
+    { name: 'Careers', href: '/careers' },
     { name: 'Contact', href: '/contact' },
   ],
   services: [
@@ -60,7 +59,7 @@ export const navigation = {
     ],
     company: [
       { name: 'About', href: '/about' },
-      { name: 'Industries', href: '/industries' },
+      { name: 'Careers', href: '/careers' },
       { name: 'Case Studies', href: '/case-studies' },
       { name: 'Contact', href: '/contact' },
     ],

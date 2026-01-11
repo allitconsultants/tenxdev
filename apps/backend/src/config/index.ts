@@ -49,4 +49,21 @@ export const config = {
   get jwtSecret(): string {
     return getSecretValue('jwtSecret', process.env.JWT_SECRET);
   },
+
+  // R2 (Cloudflare) credentials for resume uploads
+  get r2AccountId(): string {
+    return getSecretValue('r2AccountId', process.env.R2_ACCOUNT_ID);
+  },
+
+  get r2AccessKeyId(): string {
+    return getSecretValue('r2AccessKeyId', process.env.R2_ACCESS_KEY_ID);
+  },
+
+  get r2SecretAccessKey(): string {
+    return getSecretValue('r2SecretAccessKey', process.env.R2_SECRET_ACCESS_KEY);
+  },
+
+  get r2BucketName(): string {
+    return getSecretValue('r2BucketName', process.env.R2_BUCKET_NAME);
+  },
 };

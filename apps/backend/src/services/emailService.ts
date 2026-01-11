@@ -270,4 +270,96 @@ The tenxdev.ai Team
       throw error;
     }
   },
+
+  async sendJobApplicationNotification(data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    position: string;
+    linkedIn?: string;
+    portfolio?: string;
+    coverLetter?: string;
+    resumeKey: string;
+  }): Promise<boolean> {
+    const transport = getTransporter();
+    if (!transport) {
+      logger.warn('Brevo SMTP not configured, skipping job application notification');
+      return true;
+    }
+
+    try {
+      await transport.sendMail({
+        to: config.email.toEmail,
+        from: config.email.fromEmail,
+        subject: `New Job Application: ${data.position} - ${data.firstName} ${data.lastName}`,
+        html: `
+          <h2>New Job Application</h2>
+          <p><strong>Position:</strong> ${data.position}</p>
+          <hr>
+          <h3>Candidate Information</h3>
+          <p><strong>Name:</strong> ${data.firstName} ${data.lastName}</p>
+          <p><strong>Email:</strong> <a href="mailto:${data.email}">${data.email}</a></p>
+          <p><strong>Phone:</strong> ${data.phone}</p>
+          ${data.linkedIn ? `<p><strong>LinkedIn:</strong> <a href="${data.linkedIn}">${data.linkedIn}</a></p>` : ''}
+          ${data.portfolio ? `<p><strong>Portfolio/GitHub:</strong> <a href="${data.portfolio}">${data.portfolio}</a></p>` : ''}
+          <hr>
+          <h3>Resume</h3>
+          <p>Resume uploaded to R2: <code>${data.resumeKey}</code></p>
+          ${data.coverLetter ? `
+          <hr>
+          <h3>Cover Letter</h3>
+          <p>${data.coverLetter.replace(/\n/g, '<br>')}</p>
+          ` : ''}
+          <hr>
+          <p><em>This application requires US citizenship and US residency.</em></p>
+        `,
+        text: `
+New Job Application
+
+Position: ${data.position}
+
+Candidate Information
+Name: ${data.firstName} ${data.lastName}
+Email: ${data.email}
+Phone: ${data.phone}
+${data.linkedIn ? `LinkedIn: ${data.linkedIn}` : ''}
+${data.portfolio ? `Portfolio/GitHub: ${data.portfolio}` : ''}
+
+Resume
+Resume uploaded to R2: ${data.resumeKey}
+
+${data.coverLetter ? `Cover Letter:\n${data.coverLetter}` : ''}
+
+This application requires US citizenship and US residency.
+        `,
+      });
+
+      // Also send confirmation to applicant
+      await transport.sendMail({
+        to: data.email,
+        from: config.email.fromEmail,
+        subject: `Application Received: ${data.position} at TenxDev`,
+        html: `
+          <h2>Thanks for applying, ${data.firstName}!</h2>
+          <p>We've received your application for the <strong>${data.position}</strong> position at TenxDev.</p>
+          <p>Our team will review your application and get back to you within 5 business days.</p>
+          <h3>What's Next?</h3>
+          <ul>
+            <li>Our team reviews your resume and qualifications</li>
+            <li>If there's a match, we'll reach out to schedule an initial call</li>
+            <li>The interview process typically includes technical and cultural fit discussions</li>
+          </ul>
+          <p>In the meantime, feel free to learn more about us at <a href="https://tenxdev.ai">tenxdev.ai</a>.</p>
+          <p>Best regards,<br>The TenxDev Team</p>
+        `,
+      });
+
+      logger.info({ email: data.email, position: data.position }, 'Job application notification sent');
+      return true;
+    } catch (error) {
+      logger.error({ error, email: data.email }, 'Failed to send job application notification');
+      throw error;
+    }
+  },
 };

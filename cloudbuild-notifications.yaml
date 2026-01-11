@@ -1,0 +1,6 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'us-east4-docker.pkg.dev/surveyweb-480718/surveyweb/tenxdev-notifications:latest', '-f', 'apps/services/notifications/Dockerfile', '.']
+images:
+  - 'us-east4-docker.pkg.dev/surveyweb-480718/surveyweb/tenxdev-notifications:latest'
+timeout: '600s'

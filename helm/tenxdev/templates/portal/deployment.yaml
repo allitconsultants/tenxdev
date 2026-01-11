@@ -1,0 +1,75 @@
+{{- if .Values.portal.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "tenxdev.fullname" . }}-portal
+  labels:
+    {{- include "tenxdev.portal.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.portal.autoscaling.enabled }}
+  replicas: {{ .Values.portal.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "tenxdev.portal.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "tenxdev.portal.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "tenxdev.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: portal
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.portal.image.repository }}:{{ .Values.portal.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.portal.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.portal.service.port }}
+              protocol: TCP
+          env:
+            {{- if .Values.portal.env }}
+            {{- toYaml .Values.portal.env | nindent 12 }}
+            {{- end }}
+            - name: AUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: tenxdev-auth-secret
+                  key: auth-secret
+            - name: AUTH_TRUST_HOST
+              value: "true"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: tenxdev-database-url
+                  key: DATABASE_URL
+          livenessProbe:
+            {{- toYaml .Values.portal.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.portal.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.portal.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

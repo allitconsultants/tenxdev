@@ -1,0 +1,14 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'us-east4-docker.pkg.dev/surveyweb-480718/surveyweb/tenxdev-portal:latest'
+      - '-f'
+      - 'apps/portal/Dockerfile'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_DOCUMENTS_SERVICE_URL=https://docs-api.tenxdev.ai'
+      - '.'
+images:
+  - 'us-east4-docker.pkg.dev/surveyweb-480718/surveyweb/tenxdev-portal:latest'
+timeout: '600s'
