@@ -1,0 +1,98 @@
+# HashiCorp Vault Helm values for TenxDev
+# Deploy: helm upgrade --install vault hashicorp/vault -n vault -f helm/vault/values.yaml
+
+global:
+  enabled: true
+  tlsDisable: true  # Start with TLS disabled internally, use ingress for external TLS
+
+server:
+  image:
+    repository: "hashicorp/vault"
+    tag: "1.15.4"
+    pullPolicy: IfNotPresent
+
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+
+  # HA mode with integrated Raft storage
+  ha:
+    enabled: true
+    replicas: 3
+    raft:
+      enabled: true
+      setNodeId: true
+      config: |
+        ui = true
+
+        listener "tcp" {
+          tls_disable = 1
+          address = "[::]:8200"
+          cluster_address = "[::]:8201"
+        }
+
+        storage "raft" {
+          path = "/vault/data"
+        }
+
+        service_registration "kubernetes" {}
+
+  # Data storage
+  dataStorage:
+    enabled: true
+    size: 10Gi
+    storageClass: null
+
+  # Audit storage
+  auditStorage:
+    enabled: true
+    size: 10Gi
+    storageClass: null
+
+  # Ingress with TLS termination at Traefik
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    annotations:
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      traefik.ingress.kubernetes.io/router.tls: "true"
+    hosts:
+      - host: vault.tenxdev.ai
+    tls:
+      - secretName: vault-tls
+        hosts:
+          - vault.tenxdev.ai
+
+  service:
+    enabled: true
+    type: ClusterIP
+    port: 8200
+
+  readinessProbe:
+    enabled: true
+    path: "/v1/sys/health?standbyok=true&sealedcode=204&uninitcode=204"
+  livenessProbe:
+    enabled: true
+    path: "/v1/sys/health?standbyok=true"
+    initialDelaySeconds: 60
+
+# UI
+ui:
+  enabled: true
+  serviceType: ClusterIP
+
+# Vault Agent Injector
+injector:
+  enabled: true
+  replicas: 1
+  resources:
+    requests:
+      memory: 50Mi
+      cpu: 50m
+    limits:
+      memory: 128Mi
+      cpu: 250m
